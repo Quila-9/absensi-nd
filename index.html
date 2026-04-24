@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Absensi Karyawan PT Maju Jaya</title>
+<title>AbsensiND</title>
 
 <style>
 body{font-family:Arial;background:#fff}
@@ -50,7 +50,7 @@ Jabatan:
 
 <table>
 <thead>
-<tr><th colspan="100" class="title">ABSENSI KARYAWAN PT MAJU JAYA</th></tr>
+<tr><th colspan="100" class="title">ABSENSI ND</th></tr>
 <tr><th colspan="100" class="subtitle" id="periode"></th></tr>
 
 <tr class="header">
@@ -67,7 +67,7 @@ Jabatan:
 </table>
 
 <script>
-const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzl6jOLHAiwYux6qEl-4SfBLWvAiqA5PDEoSLAK6KrqRye_ecMT7o6mTBbCKt41g/pubhtml?gid=30156212&single=true";
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzl6jOLHAiwYux6qEl-4SfBLWvAiqA5PDEoSLAK6KrqRye_ecMT7o6mTBbCKt41g/pub?gid=30156212&single=true&output=csv";
 let data=[];
 
 fetch(CSV_URL).then(r=>r.text()).then(t=>{
