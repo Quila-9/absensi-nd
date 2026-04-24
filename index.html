@@ -1,88 +1,118 @@
+<!--
+<script>
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzl6jOLHAiwYux6qEl-4SfBLWvAiqA5PDEoSLAK6KrqRye_ecMT7o6mTBbCKt41g/pub?gid=30156212&single=true&output=csv";
+let rawData = [];
+-->
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Absensi ND</title>
 
 <style>
-body{
-  font-family: Calibri, Arial, sans-serif;
-  margin: 8px;
+:root{
+  --yellow:#f7c600;
+  --ly:#fff2cc;
+  --border:#000;
 }
 
-/* FILTER */
+body{
+  font-family: Calibri, Arial, sans-serif;
+  margin:8px;
+  background:#fff;
+}
+
+/* ===== FILTER ===== */
 .filter{
   display:flex;
   flex-wrap:wrap;
-  gap:6px;
+  gap:8px;
+  align-items:center;
   margin-bottom:10px;
 }
 select,button{
-  padding:5px 8px;
+  padding:6px 10px;
   font-size:13px;
 }
 
-/* TABLE WRAP */
+/* ===== TABLE WRAP ===== */
 .table-wrap{
   width:100%;
   overflow:auto;
   border:1px solid #aaa;
 }
 
-/* TABLE */
+/* ===== TABLE ===== */
 table{
   border-collapse:collapse;
   min-width:1600px;
   width:100%;
 }
 th,td{
-  border:1px solid #000;
+  border:1px solid var(--border);
   font-size:11px;
   text-align:center;
   padding:2px;
   height:26px;
+  background:#fff;
 }
 
-/* TITLE */
+/* ===== TITLE ===== */
 .title{
-  background:#f7c600;
+  background:var(--yellow);
   font-size:16px;
   font-weight:bold;
 }
 .subtitle{
-  background:#fff2cc;
+  background:var(--ly);
   font-weight:bold;
 }
 
-/* STICKY */
-th.sticky, td.sticky{
+/* ===== STICKY HEADER ===== */
+thead th{
+  position:sticky;
+  top:0;
+  z-index:4;
+}
+
+/* ===== STICKY LEFT ===== */
+.sticky{
   position:sticky;
   left:0;
-  background:#fff;
   z-index:5;
+  background:#fff;
 }
-th.sticky2, td.sticky2{
+.sticky2{
   position:sticky;
-  left:160px;
-  background:#fff;
+  left:170px;
   z-index:5;
+  background:#fff;
 }
 
-/* NAME */
-.nama{min-width:160px;text-align:left;padding-left:6px;}
-.jabatan{min-width:120px;text-align:left;padding-left:6px;}
+/* ===== NAME ===== */
+.nama{
+  min-width:170px;
+  text-align:left;
+  padding-left:6px;
+  font-weight:bold;
+}
+.jabatan{
+  min-width:130px;
+  text-align:left;
+  padding-left:6px;
+}
 
-/* MINGGU */
+/* ===== MINGGU ===== */
 .minggu{
   background:red;
   color:white;
   font-weight:bold;
   writing-mode:vertical-rl;
   transform:rotate(180deg);
+  width:20px;
 }
 
-/* PRINT */
 @media print{
   .filter{display:none}
   .table-wrap{overflow:visible}
@@ -92,28 +122,19 @@ th.sticky2, td.sticky2{
 
 <body>
 
+<!-- FILTER -->
 <div class="filter">
   Bulan:
-  <select id="bulan" onchange="render()">
-    <option value="0">Jan</option><option value="1">Feb</option>
-    <option value="2">Mar</option><option value="3">Apr</option>
-    <option value="4">Mei</option><option value="5">Jun</option>
-    <option value="6">Jul</option><option value="7">Agu</option>
-    <option value="8">Sep</option><option value="9">Okt</option>
-    <option value="10">Nov</option><option value="11">Des</option>
-  </select>
+  <select id="bulan"></select>
 
   Tahun:
-  <select id="tahun" onchange="render()">
-    <option>2025</option>
-    <option selected>2026</option>
-  </select>
+  <select id="tahun"></select>
 
   Nama:
-  <select id="filterNama" onchange="render()"></select>
+  <select id="filterNama"></select>
 
   Jabatan:
-  <select id="filterDept" onchange="render()"></select>
+  <select id="filterDept"></select>
 
   <button onclick="window.print()">Print / PDF</button>
 </div>
@@ -138,88 +159,113 @@ th.sticky2, td.sticky2{
 
 <script>
 const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzl6jOLHAiwYux6qEl-4SfBLWvAiqA5PDEoSLAK6KrqRye_ecMT7o6mTBbCKt41g/pub?gid=30156212&single=true&output=csv";
+
+/* ===== GLOBAL ===== */
 let rawData = [];
 
+/* ===== INIT FILTER ===== */
+const bulanEl = document.getElementById("bulan");
+const tahunEl = document.getElementById("tahun");
+const namaEl  = document.getElementById("filterNama");
+const deptEl  = document.getElementById("filterDept");
+
+const namaBulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+namaBulan.forEach((b,i)=>bulanEl.innerHTML+=`<option value="${i}">${b}</option>`);
+bulanEl.value = new Date().getMonth();
+
+for(let y=2024;y<=2027;y++){
+  tahunEl.innerHTML += `<option value="${y}">${y}</option>`;
+}
+tahunEl.value = new Date().getFullYear();
+
+bulanEl.onchange = tahunEl.onchange = namaEl.onchange = deptEl.onchange = render;
+
+/* ===== FETCH DATA ===== */
 fetch(CSV_URL)
-  .then(r => r.text())
-  .then(csv => {
-    const rows = csv.trim().split("\n");
-    const header = rows.shift().split(",");
+.then(r=>r.text())
+.then(csv=>{
+  const rows = csv.trim().split("\n");
+  const head = rows.shift().split(",");
 
-    rawData = rows.map(r => {
-      const c = r.split(",");
-      return {
-        nama: c[header.indexOf("Nama")],
-        dept: c[header.indexOf("Departemen")],
-        tanggal: new Date(c[header.indexOf("Tanggal")]),
-        jamMasuk: c[header.indexOf("Scan Masuk")] || ""
-      };
-    });
-
-    initFilter();
-    render();
+  rawData = rows.map(r=>{
+    const c = r.split(",");
+    return {
+      nama: c[head.indexOf("Nama")],
+      dept: c[head.indexOf("Departemen")],
+      tanggal: new Date(c[head.indexOf("Tanggal")]),
+      jam: (c[head.indexOf("Scan Masuk")] || "").trim()
+    };
   });
 
-function render() {
-  const bulanVal = parseInt(bulan.value);   // 0–11
-  const tahunVal = parseInt(tahun.value);
-  const namaVal  = filterNama.value;
-  const deptVal  = filterDept.value;
+  initFilter();
+  render();
+});
 
-  const hariMax = new Date(tahunVal, bulanVal + 1, 0).getDate();
+/* ===== INIT FILTER OPTION ===== */
+function initFilter(){
+  namaEl.innerHTML = "<option value=''>Semua</option>" +
+    [...new Set(rawData.map(d=>d.nama))].sort()
+      .map(n=>`<option>${n}</option>`).join("");
 
-  // 1️⃣ FILTER DATA MENTAH
-  const filtered = rawData.filter(r => {
-    return (
-      r.tanggal.getMonth() === bulanVal &&
-      r.tanggal.getFullYear() === tahunVal &&
-      (!namaVal || r.nama === namaVal) &&
-      (!deptVal || r.dept === deptVal)
-    );
-  });
+  deptEl.innerHTML = "<option value=''>Semua</option>" +
+    [...new Set(rawData.map(d=>d.dept))].sort()
+      .map(j=>`<option>${j}</option>`).join("");
+}
 
-  // 2️⃣ GROUP PER ORANG
-  const grouped = {};
-  filtered.forEach(r => {
-    const key = r.nama + "||" + r.dept;
-    if (!grouped[key]) {
-      grouped[key] = {
-        nama: r.nama,
-        dept: r.dept,
-        hari: {}   // { 1: "07:58", 2: "08:01", ... }
-      };
-    }
-    const tgl = r.tanggal.getDate(); // ✅ INI KUNCI
-    grouped[key].hari[tgl] = r.jamMasuk;
-  });
+/* ===== RENDER ===== */
+function render(){
+  const bulan = parseInt(bulanEl.value);
+  const tahun = parseInt(tahunEl.value);
+  const fNama = namaEl.value;
+  const fDept = deptEl.value;
 
-  // 3️⃣ RENDER HEADER TANGGAL
-  let headerTanggal = "";
-  for (let d = 1; d <= hariMax; d++) {
-    const day = new Date(tahunVal, bulanVal, d).getDay();
-    headerTanggal +=
-      day === 0
-        ? `<th class="minggu">M</th>`
-        : `<th>${d}</th>`;
+  const hariMax = new Date(tahun, bulan+1, 0).getDate();
+  document.getElementById("periode").textContent =
+    `PERIODE ${namaBulan[bulan].toUpperCase()} ${tahun}`;
+
+  /* HEADER TANGGAL */
+  let ht = "";
+  for(let d=1; d<=hariMax; d++){
+    const day = new Date(tahun, bulan, d).getDay();
+    ht += day===0 ? `<th class="minggu">M</th>` : `<th>${d}</th>`;
   }
-  headTanggal.innerHTML = headerTanggal;
-  colTanggal.colSpan = hariMax;
+  document.getElementById("headTanggal").innerHTML = ht;
+  document.getElementById("colTanggal").colSpan = hariMax;
 
-  // 4️⃣ RENDER BODY
+  /* FILTER DATA MENTAH */
+  const filtered = rawData.filter(r=>{
+    return r.tanggal.getMonth()===bulan &&
+           r.tanggal.getFullYear()===tahun &&
+           (!fNama || r.nama===fNama) &&
+           (!fDept || r.dept===fDept);
+  });
+
+  /* GROUP BY NAMA + DEPT */
+  const group = {};
+  filtered.forEach(r=>{
+    const key = r.nama+"||"+r.dept;
+    if(!group[key]){
+      group[key] = {nama:r.nama, dept:r.dept, hari:{}};
+    }
+    const tgl = r.tanggal.getDate();  // ✅ KUNCI PERBAIKAN
+    if(r.jam) group[key].hari[tgl] = r.jam;
+  });
+
+  /* RENDER BODY */
+  const body = document.getElementById("body");
   body.innerHTML = "";
-  Object.values(grouped).forEach(emp => {
-    let row = `
-      <tr>
-        <td class="sticky nama">${emp.nama}</td>
-        <td class="sticky2 jabatan">${emp.dept}</td>
-    `;
 
-    for (let d = 1; d <= hariMax; d++) {
-      row += `<td>${emp.hari[d] || ""}</td>`;
+  Object.values(group).forEach(emp=>{
+    let tr = `<tr>
+      <td class="sticky nama">${emp.nama}</td>
+      <td class="sticky2 jabatan">${emp.dept}</td>`;
+
+    for(let d=1; d<=hariMax; d++){
+      tr += `<td>${emp.hari[d] || ""}</td>`;
     }
 
-    row += "</tr>";
-    body.innerHTML += row;
+    tr += "</tr>";
+    body.innerHTML += tr;
   });
 }
 </script>
