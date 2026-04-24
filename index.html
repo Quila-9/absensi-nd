@@ -6,129 +6,86 @@
 <title>Absensi ND</title>
 
 <style>
-:root {
-  --yellow:#f7c600;
-  --light-yellow:#fff2cc;
-  --border:#000;
-}
-
-body {
+body{
   font-family: Calibri, Arial, sans-serif;
-  background: #fff;
   margin: 8px;
 }
 
-/* ===== FILTER ===== */
-.filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-  margin-bottom: 8px;
+/* FILTER */
+.filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:10px;
+}
+select,button{
+  padding:5px 8px;
+  font-size:13px;
 }
 
-select, button {
-  font-size: 12px;
-  padding: 4px 6px;
+/* TABLE WRAP */
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  border:1px solid #aaa;
 }
 
-/* ===== WRAPPER ===== */
-.table-container {
-  width: 100%;
-  overflow: auto;
-  border: 1px solid #aaa;
+/* TABLE */
+table{
+  border-collapse:collapse;
+  min-width:1600px;
+  width:100%;
+}
+th,td{
+  border:1px solid #000;
+  font-size:11px;
+  text-align:center;
+  padding:2px;
+  height:26px;
 }
 
-/* ===== TABLE ===== */
-table {
-  border-collapse: collapse;
-  min-width: 1400px;
-  width: 100%;
-  table-layout: fixed;
+/* TITLE */
+.title{
+  background:#f7c600;
+  font-size:16px;
+  font-weight:bold;
+}
+.subtitle{
+  background:#fff2cc;
+  font-weight:bold;
 }
 
-th, td {
-  border: 1px solid var(--border);
-  font-size: 11px;
-  text-align: center;
-  padding: 2px;
-  height: 24px;
-  background: #fff;
+/* STICKY */
+th.sticky, td.sticky{
+  position:sticky;
+  left:0;
+  background:#fff;
+  z-index:5;
+}
+th.sticky2, td.sticky2{
+  position:sticky;
+  left:160px;
+  background:#fff;
+  z-index:5;
 }
 
-/* ===== TITLES ===== */
-.title {
-  background: var(--yellow);
-  font-size: 16px;
-  font-weight: bold;
+/* NAME */
+.nama{min-width:160px;text-align:left;padding-left:6px;}
+.jabatan{min-width:120px;text-align:left;padding-left:6px;}
+
+/* MINGGU */
+.minggu{
+  background:red;
+  color:white;
+  font-weight:bold;
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
 }
 
-.subtitle {
-  background: var(--light-yellow);
-  font-size: 13px;
-  font-weight: bold;
-}
-
-/* ===== HEADER ===== */
-.header {
-  background: #f2f2f2;
-  font-weight: bold;
-}
-
-thead th {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-
-/* ===== STICKY LEFT ===== */
-.sticky-left {
-  position: sticky;
-  left: 0;
-  z-index: 6;
-  background: #fff;
-}
-
-.sticky-left-2 {
-  position: sticky;
-  left: 140px;
-  z-index: 6;
-  background: #fff;
-}
-
-.nama {
-  text-align: left;
-  padding-left: 6px;
-  min-width: 140px;
-}
-
-.jabatan {
-  text-align: left;
-  padding-left: 6px;
-  min-width: 110px;
-}
-
-/* ===== MINGGU ===== */
-.minggu {
-  background: #ff0000;
-  color: #fff;
-  font-weight: bold;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  width: 18px;
-}
-
-/* ===== STATUS ===== */
-.h { background: #00ff00; }
-.i { background: #ffff00; }
-.c { background: #00b0f0; color:#fff; }
-.s { background: #ffc000; }
-.a { background: #ff0000; color:#fff; }
-
-@media print {
-  body { margin:0; }
-  .filter { display:none; }
-  .table-container { overflow: visible; }
+/* PRINT */
+@media print{
+  .filter{display:none}
+  .table-wrap{overflow:visible}
 }
 </style>
 </head>
@@ -140,7 +97,7 @@ thead th {
   <select id="bulan" onchange="render()">
     <option value="0">Jan</option><option value="1">Feb</option>
     <option value="2">Mar</option><option value="3">Apr</option>
-    <option value="4">Mei</option><option value="5" selected>Jun</option>
+    <option value="4">Mei</option><option value="5">Jun</option>
     <option value="6">Jul</option><option value="7">Agu</option>
     <option value="8">Sep</option><option value="9">Okt</option>
     <option value="10">Nov</option><option value="11">Des</option>
@@ -155,30 +112,24 @@ thead th {
   Nama:
   <select id="filterNama" onchange="render()"></select>
 
-  Departemen:
+  Jabatan:
   <select id="filterDept" onchange="render()"></select>
 
   <button onclick="window.print()">Print / PDF</button>
 </div>
 
-<div class="table-container">
+<div class="table-wrap">
 <table>
 <thead>
-<tr>
-  <th class="title" colspan="100">ABSENSI ND</th>
-</tr>
-<tr>
-  <th class="subtitle" colspan="100" id="periode"></th>
-</tr>
+<tr><th class="title" colspan="100">ABSENSI ND</th></tr>
+<tr><th class="subtitle" colspan="100" id="periode"></th></tr>
 
-<tr class="header">
-  <th class="sticky-left" rowspan="2">Nama</th>
-  <th class="sticky-left-2" rowspan="2">Departemen</th>
+<tr>
+  <th class="sticky" rowspan="2">Nama</th>
+  <th class="sticky2" rowspan="2">Departemen</th>
   <th id="colTanggal" colspan="31">Tanggal</th>
-  <th rowspan="2">HK</th>
-  <th colspan="5">Keterangan</th>
 </tr>
-<tr class="header" id="headTanggal"></tr>
+<tr id="headTanggal"></tr>
 </thead>
 
 <tbody id="body"></tbody>
@@ -186,19 +137,20 @@ thead th {
 </div>
 
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzl6jOLHAiwYux6qEl-4SfBLWvAiqA5PDEoSLAK6KrqRye_ecMT7o6mTBbCKt41g/pub?gid=30156212&single=true&output=csv";
+const CSV_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzl6jOLHAiwYux6qEl-4SfBLWvAiqA5PDEoSLAK6KrqRye_ecMT7o6mTBbCKt41g/pub?gid=30156212&single=true&output=csv";
 let data=[];
 
 fetch(CSV_URL).then(r=>r.text()).then(txt=>{
  const rows=txt.trim().split("\n");
- const head=rows.shift().split(",");
+ const h=rows.shift().split(",");
+
  data=rows.map(r=>{
   const c=r.split(",");
   return{
-   nama:c[head.indexOf("Nama")],
-   dept:c[head.indexOf("Departemen")],
-   tanggal:c[head.indexOf("Tanggal")],
-   status:c[head.indexOf("StatusFinal")]
+   nama:c[h.indexOf("Nama")],
+   dept:c[h.indexOf("Departemen")],
+   tgl:new Date(c[h.indexOf("Tanggal")]),
+   jam:c[h.indexOf("Scan Masuk")]
   };
  });
  initFilter();
@@ -216,6 +168,7 @@ function render(){
  const b=+bulan.value,t=+tahun.value;
  const fn=filterNama.value,fd=filterDept.value;
  const max=new Date(t,b+1,0).getDate();
+
  periode.textContent=`PERIODE ${bulan.options[b].text.toUpperCase()} ${t}`;
 
  let ht="";
@@ -223,34 +176,30 @@ function render(){
   const d=new Date(t,b,i).getDay();
   ht+=d===0?`<th class="minggu">M</th>`:`<th>${i}</th>`;
  }
- ht+=`<th class="h">H</th><th class="i">I</th><th class="c">C</th><th class="s">S</th><th class="a">A</th>`;
  headTanggal.innerHTML=ht;
  colTanggal.colSpan=max;
 
  const f=data.filter(d=>{
-  const dt=new Date(d.tanggal);
-  return dt.getMonth()==b&&dt.getFullYear()==t&&(!fn||d.nama==fn)&&(!fd||d.dept==fd);
+  return d.tgl.getMonth()==b && d.tgl.getFullYear()==t &&
+         (!fn||d.nama==fn)&&(!fd||d.dept==fd);
  });
 
  const g={};
  f.forEach(d=>{
   const k=d.nama+d.dept;
   g[k]??={nama:d.nama,dept:d.dept,harian:{}};
-  g[k].harian[new Date(d.tanggal).getDate()]=d.status;
+  g[k].harian[d.tgl.getDate()]=d.jam;
  });
 
  body.innerHTML="";
  Object.values(g).forEach(r=>{
-  let H=0,I=0,C=0,S=0,A=0;
   let tr=`<tr>
-   <td class="sticky-left nama">${r.nama}</td>
-   <td class="sticky-left-2 jabatan">${r.dept}</td>`;
+   <td class="sticky nama">${r.nama}</td>
+   <td class="sticky2 jabatan">${r.dept}</td>`;
   for(let i=1;i<=max;i++){
-   const s=r.harian[i]||"";
-   if(s=="H")H++;if(s=="I")I++;if(s=="C")C++;if(s=="S")S++;if(s=="A")A++;
-   tr+=`<td class="${s.toLowerCase()}">${s}</td>`;
+    tr+=`<td>${r.harian[i]||""}</td>`;
   }
-  tr+=`<td>${H}</td><td>${H}</td><td>${I}</td><td>${C}</td><td>${S}</td><td>${A}</td></tr>`;
+  tr+="</tr>";
   body.innerHTML+=tr;
  });
 }
