@@ -1,20 +1,202 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>Absensi ND</title>
-  <link rel="stylesheet" href="style.css">  
+<meta charset="UTF-8">
+<title>Absensi Karyawan PT Maju Jaya</title>
+
+<style>
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+}
+
+/* FILTER */
+.filter {
+  margin: 10px 0;
+}
+
+/* TABLE */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+th, td {
+  border: 1px solid #000;
+  text-align: center;
+  font-size: 12px;
+  height: 28px;
+  padding: 2px;
+}
+
+.title {
+  background: #f7c600;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.subtitle {
+  background: #ffe699;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.header {
+  background: #f2f2f2;
+  font-weight: bold;
+}
+
+.nama, .jabatan {
+  text-align: left;
+  padding-left: 5px;
+}
+
+/* MINGGU */
+.minggu {
+  background: red;
+  color: white;
+  font-weight: bold;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+/* KODE */
+.h { background: #00ff00; }
+.i { background: #ffff00; }
+.c { background: #00b0f0; color: white; }
+.s { background: #ffc000; }
+.a { background: #ff0000; color: white; }
+
+/* KETERANGAN */
+.keterangan {
+  width: 260px;
+  margin-top: 15px;
+}
+</style>
 </head>
+
 <body>
 
-<h1>ABSENSI ND</h1>
-<h2>PERIODE JUNI 2022</h2>
+<!-- FILTER -->
+<div class="filter">
+  <label><strong>Pilih Bulan:</strong></label>
+  <select id="bulan" onchange="generateTable()">
+    <option value="0">Januari</option>
+    <option value="1">Februari</option>
+    <option value="2">Maret</option>
+    <option value="3">April</option>
+    <option value="4">Mei</option>
+    <option value="5" selected>Juni</option>
+    <option value="6">Juli</option>
+    <option value="7">Agustus</option>
+    <option value="8">September</option>
+    <option value="9">Oktober</option>
+    <option value="10">November</option>
+    <option value="11">Desember</option>
+  </select>
 
-<div class="table-container">
-  <table id="absensi-table"></table>
+  <select id="tahun" onchange="generateTable()">
+    <option value="2025">2025</option>
+    <option value="2026" selected>2026</option>
+  </select>
 </div>
 
-<script src="main.js"></script>
+<!-- TABLE -->
+<table id="absensi">
+
+  <thead>
+    <tr>
+      <th colspan="100" class="title">ABSENSI KARYAWAN PT MAJU JAYA</th>
+    </tr>
+    <tr>
+      <th colspan="100" class="subtitle" id="periode">PERIODE JUNI 2026</th>
+    </tr>
+
+    <tr class="header">
+      <th rowspan="2">Nama</th>
+      <th rowspan="2">Jabatan</th>
+      <th id="jumlahTanggal" colspan="30">Tanggal</th>
+      <th rowspan="2">Jumlah<br>Hari Kerja</th>
+      <th colspan="5">Keterangan</th>
+    </tr>
+
+    <tr class="header" id="headerTanggal"></tr>
+  </thead>
+
+  <tbody id="isiTable"></tbody>
+</table>
+
+<!-- KETERANGAN -->
+<table class="keterangan">
+  <tr><th colspan="2">Keterangan</th></tr>
+  <tr><td class="h">H</td><td>Hadir</td></tr>
+  <tr><td class="i">I</td><td>Izin</td></tr>
+  <tr><td class="c">C</td><td>Cuti</td></tr>
+  <tr><td class="s">S</td><td>Sakit</td></tr>
+  <tr><td class="a">A</td><td>Abstain</td></tr>
+</table>
+
+<script>
+function generateTable() {
+  const bulan = parseInt(document.getElementById("bulan").value);
+  const tahun = parseInt(document.getElementById("tahun").value);
+
+  const namaBulan = [
+    "JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI",
+    "JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"
+  ];
+
+  const hariMax = new Date(tahun, bulan+1, 0).getDate();
+
+  // PERIODE
+  document.getElementById("periode").innerText =
+    "PERIODE " + namaBulan[bulan] + " " + tahun;
+
+  // HEADER TANGGAL
+  let header = "";
+  for (let i=1;i<=hariMax;i++){
+    const hari = new Date(tahun, bulan, i).getDay();
+    if(hari===0){
+      header += `<th class="minggu">Minggu</th>`;
+    } else {
+      header += `<th>${i}</th>`;
+    }
+  }
+  header += `
+    <th class="h">H</th>
+    <th class="i">I</th>
+    <th class="c">C</th>
+    <th class="s">S</th>
+    <th class="a">A</th>
+  `;
+  document.getElementById("headerTanggal").innerHTML = header;
+  document.getElementById("jumlahTanggal").colSpan = hariMax;
+
+  // DATA SAMPLE
+  const data = [
+    {nama:"Adi", jabatan:"Operator"},
+    {nama:"Bayu", jabatan:"Operator"},
+    {nama:"Anun", jabatan:"Operator"},
+    {nama:"Robby", jabatan:"Teknisi"},
+    {nama:"Aris", jabatan:"Teknisi"}
+  ];
+
+  let body = "";
+  data.forEach(d=>{
+    body += `<tr><td class="nama">${d.nama}</td><td class="jabatan">${d.jabatan}</td>`;
+    for(let i=1;i<=hariMax;i++){
+      const hari = new Date(tahun, bulan, i).getDay();
+      body += hari===0 ? `<td class="minggu"></td>` : `<td></td>`;
+    }
+    body += `<td></td><td></td><td></td><td></td><td></td></tr>`;
+  });
+
+  document.getElementById("isiTable").innerHTML = body;
+}
+
+window.onload = generateTable;
+</script>
+
 </body>
 </html>
-
